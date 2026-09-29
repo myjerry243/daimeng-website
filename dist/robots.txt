@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Sitemap: https://www.daimengtech.com/sitemap.xml
+Sitemap: https://myjerry243.github.io/daimeng-website/sitemap.xml

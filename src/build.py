@@ -3,7 +3,11 @@ import json, shutil, html, os
 
 ROOT=Path(__file__).resolve().parent.parent
 OUT=ROOT/'dist'
-BASE=os.environ.get('SITE_URL','https://www.daimengtech.com').rstrip('/')
+BASE=os.environ.get('SITE_URL','https://myjerry243.github.io/daimeng-website').rstrip('/')
+# GitHub Pages project sites are served from /<repo>/, so root-absolute links need that prefix.
+# Set SITE_PREFIX='' when the site is published at a domain root (or behind a custom domain).
+PREFIX=os.environ.get('SITE_PREFIX','/daimeng-website').strip('/')
+PREFIX='/'+PREFIX if PREFIX else ''
 PAGES=[]
 def esc(s): return html.escape(str(s),quote=True)
 def brand(): return '<a class="brand" href="/" aria-label="Daimeng Technology home"><span class="brand-symbol" aria-hidden="true"></span><span class="brand-name">DAIMENG<small>ALUMINIUM ENGINEERING</small></span></a>'
@@ -43,6 +47,14 @@ if extra.exists(): exec(compile(extra.read_text(encoding='utf-8'),str(extra),'ex
 for name in ['style.css','app.js']:
     src=ROOT/'src'/name
     if src.exists(): shutil.copy2(src,OUT/'assets'/name)
+# Rewrite root-absolute links so they resolve under the publishing prefix (e.g. /daimeng-website/).
+if PREFIX:
+    rewritten=0
+    for f in OUT.rglob('*.html'):
+        t=f.read_text(encoding='utf-8')
+        n=t.replace('href="/','href="'+PREFIX+'/').replace('src="/','src="'+PREFIX+'/')
+        if n!=t:f.write_text(n,encoding='utf-8');rewritten+=1
+    print(f'Applied prefix {PREFIX} to {rewritten} HTML files')
 # GitHub Pages only looks for /404.html when a route is unknown; keep the /404/ page for other hosts.
 if (OUT/'404/index.html').exists(): shutil.copy2(OUT/'404/index.html',OUT/'404.html')
 (OUT/'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+''.join('<url><loc>'+BASE+p+'</loc></url>' for p in PAGES)+'</urlset>',encoding='utf-8')

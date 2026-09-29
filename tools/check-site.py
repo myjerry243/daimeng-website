@@ -2,7 +2,10 @@ from pathlib import Path
 from html.parser import HTMLParser
 from urllib.parse import urlsplit,unquote
 import json
+import os
 root=Path(__file__).resolve().parent.parent/'dist'
+_prefix=(os.environ.get('SITE_PREFIX','/daimeng-website')).strip('/')
+_prefix='/'+_prefix if _prefix else ''
 class Check(HTMLParser):
  def __init__(self):super().__init__();self.links=[];self.ids=[];self.h1=0;self.title=0;self.description=0;self.canonical=0;self.json=False;self.schemas=[]
  def handle_starttag(self,tag,attrs):
@@ -29,7 +32,9 @@ for p in root.rglob('*.html'):
  for href in c.links:
   u=urlsplit(href)
   if u.scheme or u.netloc:continue
-  links+=1;dest=root/unquote(u.path).lstrip('/') if u.path.startswith('/') else p.parent/unquote(u.path)
+  path=unquote(u.path)
+  if _prefix and (path==_prefix or path.startswith(_prefix+'/')):path=path[len(_prefix):] or '/'
+  links+=1;dest=root/path.lstrip('/') if path.startswith('/') else p.parent/path
   if not u.path:dest=p
   if dest.is_dir():dest=dest/'index.html'
   if not dest.is_file():errors.append(f'{p.relative_to(root)} broken link: {href}')
