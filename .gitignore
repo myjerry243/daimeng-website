@@ -1,0 +1,7 @@
+data/enquiries/
+data/exports/
+data/*.log
+work/
+node_modules/
+__pycache__/
+.env

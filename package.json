@@ -1,0 +1,1 @@
+{"name":"daimeng-website","private":true,"version":"1.0.0","description":"Local Daimeng international marketing website","scripts":{"start":"node server.mjs","build":"python src/build.py","export-leads":"node tools/export-leads.mjs","test":"node --test tools/leads.test.mjs"},"engines":{"node":">=20"}}
